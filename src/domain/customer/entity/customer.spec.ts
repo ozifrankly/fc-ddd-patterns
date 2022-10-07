@@ -1,5 +1,6 @@
 import Address from "../value-object/address";
 import Customer from "./customer";
+import EnviaConsoleLogHandler from "../event/handler/envia_console_log_handler";
 
 describe("Customer unit tests", () => {
   it("should throw error when id is empty", () => {
@@ -35,6 +36,23 @@ describe("Customer unit tests", () => {
     expect(customer.isActive()).toBe(true);
   });
 
+  it("should notify when change address", () => {
+    const customer = new Customer("1", "Customer 1");
+    const address = new Address("Street 1", 123, "13330-250", "São Paulo");
+    customer.Address = address;
+
+    const eventHandler = new EnviaConsoleLogHandler()
+    const spyEventHandler = jest.spyOn(eventHandler, "handle");
+    customer.addEventHandler("CustomerAddressChangedEvent", eventHandler);
+
+    const address2 = new Address("Street 2", 123, "13330-250", "São Paulo");
+    customer.changeAddress(address2);
+
+    expect(spyEventHandler).toHaveBeenCalled();
+  });
+
+  
+    
   it("should throw error when address is undefined when you activate a customer", () => {
     expect(() => {
       const customer = new Customer("1", "Customer 1");
